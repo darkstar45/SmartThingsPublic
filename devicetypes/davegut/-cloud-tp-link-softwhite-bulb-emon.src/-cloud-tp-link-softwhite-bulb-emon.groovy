@@ -32,6 +32,7 @@ TP-Link devices; primarily various users on GitHub.com.
 	a.  Fixed March 1, 2 issue where data would not be
 		captured
 	b.	Update remaining code.
+2018-04-22	Update setCurrentDate to eliminate error for some users.
 	===== Bulb Identifier.  DO NOT EDIT ====================*/
 	def deviceType = "SoftWhite Bulb"	//	Soft White
 	//def deviceType = "TunableWhite Bulb"	//	ColorTemp
@@ -513,18 +514,21 @@ def engrStatsResponse(cmdResponse) {
 
 //	===== Obtain Week and Month Data =====
 def setCurrentDate() {
-	def df = new java.text.SimpleDateFormat("ddMMyyyy")
-	df.setTimeZone(location.timeZone)
-	def curDay = df.format(new Date())
-	def dayOne = df.format(new Date()-30)
-	def wkStart = df.format(new Date()-7)
-	state.dayToday = curDay.substring(0,2).toInteger()
-	state.monthToday = curDay.substring(2,4).toInteger()
-	state.yearToday = curDay.substring(4,8).toInteger()
-	state.dayStart = dayOne.substring(0,2).toInteger()
-	state.monthStart = dayOne.substring(2,4).toInteger()
-	state.yearStart = dayOne.substring(4,8).toInteger()
-	state.weekStart = wkStart.substring(0,2).toInteger()
+	sendCmdtoServer('{"smartlife.iot.common.timesetting":{"get_time":null}}', "deviceCommand", "currentDateResponse")
+}
+
+def currentDateResponse(cmdResponse) {
+	def currDate =  cmdResponse["smartlife.iot.common.timesetting"]["get_time"]
+	state.dayToday = currDate.mday.toInteger()
+	state.monthToday = currDate.month.toInteger()
+	state.yearToday = currDate.year.toInteger()
+	def dateToday = Date.parse("yyyy-MM-dd", "${currDate.year}-${currDate.month}-${currDate.mday}")
+	def monStartDate = dateToday - 30
+	def wkStartDate = dateToday - 7
+	state.dayStart = monStartDate[Calendar.DAY_OF_MONTH].toInteger()
+	state.monthStart = monStartDate[Calendar.MONTH].toInteger() + 1
+	state.yearStart = monStartDate[Calendar.YEAR].toInteger()
+	state.weekStart = wkStartDate[Calendar.DAY_OF_MONTH].toInteger()
 }
 
 //	===== Send the Command to the Cloud or Bridge =====
