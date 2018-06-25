@@ -77,13 +77,13 @@ def cloudLogin() {
 		section(errorMsg)
 		section(cloudLoginText) {
 			input( 
-				"userName", "string", 
+				"userName", "jgilbert0120@live.com", 
 				title:"Your TP-Link Email Address", 
 				required:true, 
 				displayDuringSetup: true
 			)
 			input(
-				"userPassword", "password", 
+				"userPassword", "Angel012069", 
 				title:"TP-Link account password", 
 				required: true, 
 				displayDuringSetup: true
